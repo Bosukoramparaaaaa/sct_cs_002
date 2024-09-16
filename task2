@@ -1,0 +1,55 @@
+from PIL import Image
+import random
+
+def encrypt_image(image_path, output_path, operation, value=None):
+    # Open an image file
+    with Image.open(image_path) as img:
+        pixels = img.load()  # Access pixels
+        width, height = img.size
+
+        if operation == 'swap':
+            swap_pixels(pixels, width, height)
+        elif operation == 'add' and value is not None:
+            modify_pixels(pixels, width, height, value)
+        
+        # Save the modified image
+        img.save(output_path)
+        print(f"Image saved at {output_path}")
+
+def swap_pixels(pixels, width, height):
+    """Swaps random pairs of pixels."""
+    for _ in range((width * height) // 2):
+        # Choose two random pixel coordinates
+        x1, y1 = random.randint(0, width - 1), random.randint(0, height - 1)
+        x2, y2 = random.randint(0, width - 1), random.randint(0, height - 1)
+
+        # Swap their values
+        pixels[x1, y1], pixels[x2, y2] = pixels[x2, y2], pixels[x1, y1]
+
+def modify_pixels(pixels, width, height, value):
+    """Applies a mathematical operation (addition) to each pixel."""
+    for x in range(width):
+        for y in range(height):
+            r, g, b = pixels[x, y]
+            # Modify each pixel by adding the value, while ensuring values stay within (0-255)
+            pixels[x, y] = (clamp(r + value), clamp(g + value), clamp(b + value))
+
+def clamp(val):
+    """Ensures a value stays within the range of 0-255."""
+    return max(0, min(255, val))
+
+def main():
+    print("Simple Image Encryption Tool")
+
+    # Hardcoded inputs
+    image_path = "image.png"  # Path to input image
+    output_path = "encrypted_image.png"  # Path to save the output encrypted image
+    operation = "add"  # Operation: either 'swap' or 'add'
+    value = 50  # Value for pixel modification (used only if operation is 'add')
+
+    print(f"Encrypting image {image_path} with operation {operation}...")
+
+    encrypt_image(image_path, output_path, operation, value)
+
+if __name__ == "__main__":
+    main()
